@@ -998,6 +998,20 @@
                     `;
                 }
                 
+                // Public API URLs section
+                infoHtml += `
+                    <div style="background: #fff3e0; padding: 20px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #ff9800;">
+                        <h3 style="margin-top: 0; margin-bottom: 15px; color: #333;">🔗 Public API Endpoints</h3>
+                        <p style="color: #666; font-size: 13px; margin-bottom: 15px;">You can access these URLs directly in your browser to view raw JSON data:</p>
+                        <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #ffe0b2;">
+                            <p style="margin: 8px 0; font-size: 12px;"><strong>Products:</strong><br><a href="https://${currentStore}.myshopify.com/products.json" target="_blank" style="color: #667eea; word-break: break-all;">https://${currentStore}.myshopify.com/products.json</a></p>
+                            <p style="margin: 8px 0; font-size: 12px;"><strong>Collections:</strong><br><a href="https://${currentStore}.myshopify.com/collections.json" target="_blank" style="color: #667eea; word-break: break-all;">https://${currentStore}.myshopify.com/collections.json</a></p>
+                            <p style="margin: 8px 0; font-size: 12px;"><strong>Cart Info:</strong><br><a href="https://${currentStore}.myshopify.com/cart.js" target="_blank" style="color: #667eea; word-break: break-all;">https://${currentStore}.myshopify.com/cart.js</a></p>
+                            <p style="margin: 8px 0; font-size: 12px;"><strong>Shop Front:</strong><br><a href="https://${currentStore}.myshopify.com" target="_blank" style="color: #667eea; word-break: break-all;">https://${currentStore}.myshopify.com</a></p>
+                        </div>
+                    </div>
+                `;
+                
                 infoHtml += `
                     <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #667eea;">
                         <p style="color: #555; font-size: 13px; margin: 0;">ℹ️ Data sourced from Shopify's public JSON endpoints. Only publicly available product information is displayed.</p>

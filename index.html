@@ -931,37 +931,76 @@
 
                 if (cartData?.currency) {
                     detectedCurrency = cartData.currency;
+                } else if (allProducts.length && allProducts[0]?.variants?.[0]?.presentment_prices?.[0]?.price?.currency_code) {
+                    detectedCurrency = allProducts[0].variants[0].presentment_prices[0].price.currency_code;
                 }
 
                 const firstProduct = allProducts[0];
-                const description = firstProduct ? (stripHtml(firstProduct.body_html || '').slice(0, 220) || 'No description available.') : 'Public endpoints only expose products/collections data.';
-                const infoHtml = `
-                    <div class="info-grid">
+                const description = firstProduct ? (stripHtml(firstProduct.body_html || '').slice(0, 220) || 'No description available.') : 'No products available to display description.';
+                
+                let infoHtml = '<div class="info-grid">';
+                
+                // Store Domain (always show)
+                infoHtml += `
+                    <div class="info-box">
+                        <div class="info-label">Store Domain</div>
+                        <div class="info-value"><a href="https://${currentStore}.myshopify.com" target="_blank" style="color: #667eea; text-decoration: none;">https://${currentStore}.myshopify.com</a></div>
+                    </div>
+                `;
+                
+                // Products count (always show)
+                infoHtml += `
+                    <div class="info-box">
+                        <div class="info-label">Products Available</div>
+                        <div class="info-value">${allProducts.length}</div>
+                    </div>
+                `;
+                
+                // Collections count (only if available)
+                if (collectionsData.collections?.length) {
+                    infoHtml += `
                         <div class="info-box">
-                            <div class="info-label">Store Domain</div>
-                            <div class="info-value"><a href="https://${currentStore}.myshopify.com" target="_blank" style="color: #667eea; text-decoration: none;">https://${currentStore}.myshopify.com</a></div>
+                            <div class="info-label">Collections</div>
+                            <div class="info-value">${collectionsData.collections.length}</div>
                         </div>
-                        <div class="info-box">
-                            <div class="info-label">Products Loaded</div>
-                            <div class="info-value">${allProducts.length}</div>
-                        </div>
-                        <div class="info-box">
-                            <div class="info-label">Collections Loaded</div>
-                            <div class="info-value">${collectionsData.collections?.length || 0}</div>
-                        </div>
+                    `;
+                }
+                
+                // Currency (only if detected)
+                if (detectedCurrency && detectedCurrency !== 'USD') {
+                    infoHtml += `
                         <div class="info-box">
                             <div class="info-label">Currency</div>
-                            <div class="info-value">${cartData?.currency || 'Unavailable'}</div>
+                            <div class="info-value">${detectedCurrency}</div>
                         </div>
+                    `;
+                }
+                
+                // Vendor (only if available)
+                if (firstProduct?.vendor) {
+                    infoHtml += `
                         <div class="info-box">
                             <div class="info-label">Sample Vendor</div>
-                            <div class="info-value">${firstProduct?.vendor || 'Not shared publicly'}</div>
+                            <div class="info-value">${escapeHtml(firstProduct.vendor)}</div>
                         </div>
-                    </div>
-                    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px;">
-                        <h3 style="margin-bottom: 10px; color: #333;">📝 Description Snippet</h3>
-                        <p style="color: #666; line-height: 1.6;">${description}</p>
-                        <p style="color: #999; font-size: 12px; margin-top: 10px;">Data sourced from Shopify's public JSON endpoints. Full shop metadata requires a Storefront API token.</p>
+                    `;
+                }
+                
+                infoHtml += '</div>';
+                
+                // Description section (only if available)
+                if (description && description !== 'No products available to display description.') {
+                    infoHtml += `
+                        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                            <h3 style="margin-bottom: 10px; color: #333;">📝 Description Snippet</h3>
+                            <p style="color: #666; line-height: 1.6;">${description}</p>
+                        </div>
+                    `;
+                }
+                
+                infoHtml += `
+                    <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #667eea;">
+                        <p style="color: #555; font-size: 13px; margin: 0;">ℹ️ Data sourced from Shopify's public JSON endpoints. Only publicly available product information is displayed.</p>
                     </div>
                 `;
 
@@ -976,14 +1015,20 @@
         async function loadProducts() {
             showProgress('productsList');
             try {
-                const data = await fetchShopifyJson('products', { limit: 50 });
-                allProducts = data.products || [];
+                const data = await fetchShopifyJson('products', { limit: 250 });
+                let products = data.products || [];
+                
+                // Filter to only active products (status = 'active')
+                allProducts = products.filter(p => p.status === 'active' || !p.status);
+                
+                // Detect currency from first product's variant
                 if (allProducts.length) {
                     const variantCurrency = allProducts[0]?.variants?.[0]?.presentment_prices?.[0]?.price?.currency_code;
                     if (variantCurrency) {
                         detectedCurrency = variantCurrency;
                     }
                 }
+                
                 displayProducts(allProducts);
                 displayInventory(allProducts);
             } catch (error) {
@@ -1005,9 +1050,9 @@
                 const variant = product.variants?.[0];
                 const price = variant?.price || product.price || 0;
                 const image = product.images?.[0]?.src;
-                const inStock = typeof variant?.available === 'boolean' ? variant.available : variant?.inventory_quantity > 0;
+                const inStock = typeof variant?.available === 'boolean' ? variant.available : (variant?.inventory_quantity || 0) > 0;
                 const desc = stripHtml(product.body_html || '').substring(0, 120) || 'No description provided.';
-                const currency = variant?.presentment_prices?.[0]?.price?.currency_code || detectedCurrency;
+                const currency = variant?.presentment_prices?.[0]?.price?.currency_code || detectedCurrency || 'USD';
                 const variantId = variant?.id ? String(variant.id) : null;
                 const title = product.title || 'Untitled Product';
                 const safeTitle = JSON.stringify(title);
@@ -1029,7 +1074,7 @@
                                     ${inStock ? '✓ In Stock' : '✗ Out of Stock'}
                                 </span>
                             </div>
-                            ${variantId ? `<button class="btn-small" onclick="addToWishlist(${safeVariant}, ${safeTitle}, ${safePrice})">♥ Add to Wishlist</button>` : '<button class="btn-small" disabled>Variant unavailable</button>'}
+                            ${variantId ? `<button class="btn-small" onclick="addToWishlist(${safeVariant}, ${safeTitle}, ${safePrice}, '${currency}')">♥ Add to Wishlist</button>` : '<button class="btn-small" disabled>Variant unavailable</button>'}
                         </div>
                     </div>
                 `;
@@ -1048,23 +1093,30 @@
             }
 
             if (!allProducts.length) {
-                document.getElementById('searchResults').innerHTML = '<div class="error">Load products first, then search.</div>';
+                document.getElementById('searchResults').innerHTML = '<div class="error">❌ Load products first, then search.</div>';
                 return;
             }
 
             document.getElementById('searchResults').innerHTML = '<div class="progress-bar"><div class="progress-fill"></div></div>';
 
             const filtered = allProducts.filter(product => {
-                const haystack = `${product.title || ''} ${product.tags || ''}`.toLowerCase();
+                const title = (product.title || '').toLowerCase();
+                const tags = (product.tags || '').toLowerCase();
+                const vendor = (product.vendor || '').toLowerCase();
+                const type = (product.product_type || '').toLowerCase();
+                const haystack = `${title} ${tags} ${vendor} ${type}`;
                 return haystack.includes(query);
             });
 
+            let resultHtml = `<div class="success">✓ Found ${filtered.length} product${filtered.length !== 1 ? 's' : ''} matching "${escapeHtml(queryRaw)}"</div>`;
+            
             if (filtered.length === 0) {
-                document.getElementById('searchResults').innerHTML = '<div class="error">❌ No products found for that search.</div>';
+                resultHtml = `<div class="error">❌ No products found matching "${escapeHtml(queryRaw)}". Searching by: title, tags, vendor, type.</div>`;
+                document.getElementById('searchResults').innerHTML = resultHtml;
                 return;
             }
 
-            document.getElementById('searchResults').innerHTML = `<div class="success">✓ Found ${filtered.length} products</div>`;
+            document.getElementById('searchResults').innerHTML = resultHtml;
             displayProducts(filtered, 'searchResults');
         }
 
@@ -1143,12 +1195,12 @@
 
 
         // Add to Wishlist
-        function addToWishlist(variantId, title, price) {
+        function addToWishlist(variantId, title, price, currency) {
             if (!variantId) {
                 alert('Unable to add this product because no sellable variant is available.');
                 return;
             }
-            const item = { id: variantId, title, price };
+            const item = { id: variantId, title, price, currency: currency || detectedCurrency || 'USD' };
             if (!wishlistItems.find(w => w.id === variantId)) {
                 wishlistItems.push(item);
                 updateWishlistDisplay();
@@ -1161,25 +1213,31 @@
         // Update Wishlist Display
         function updateWishlistDisplay() {
             if (wishlistItems.length === 0) {
-                document.getElementById('wishlistContent').innerHTML = '<p class="no-results">Your wishlist is empty</p>';
+                document.getElementById('wishlistContent').innerHTML = '<p class="no-results">Your wishlist is empty. Add products from the Products tab!</p>';
                 return;
             }
 
-            let html = '';
+            let html = '<div style="margin-bottom: 20px; padding: 15px; background: #f0f4ff; border-radius: 8px; border-left: 4px solid #667eea;">';
+            html += `<p style="margin: 0; color: #555; font-size: 14px;"><strong>Total Items:</strong> ${wishlistItems.length}</p>`;
+            html += '</div>';
+            
+            html += '<div class="product-list">';
             wishlistItems.forEach((item, index) => {
+                const itemPrice = formatCurrency(item.price, item.currency);
                 html += `
-                    <div class="wishlist-item">
-                        <div class="wishlist-product">
-                            <div class="wishlist-product-name">${escapeHtml(item.title)}</div>
-                            <div class="wishlist-product-price">${formatCurrency(item.price, detectedCurrency)}</div>
-                        </div>
-                        <div class="wishlist-actions">
-                            <button class="btn-remove" onclick="removeFromWishlist(${index})">Remove</button>
-                            <button class="btn-cart" onclick="addWishlistToCart('${item.id}')">Add to Cart</button>
+                    <div class="product-list-item">
+                        <div class="product-list-info" style="flex: 1;">
+                            <div class="product-list-title">${escapeHtml(item.title)}</div>
+                            <div class="product-list-price">${itemPrice}</div>
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <button class="btn-small" style="flex: 1; background: #667eea;" onclick="addWishlistToCart('${item.id}')">🛒 Add to Cart</button>
+                                <button class="btn-small" style="flex: 1; background: #ffebee; color: #c62828;" onclick="removeFromWishlist(${index})">✕ Remove</button>
+                            </div>
                         </div>
                     </div>
                 `;
             });
+            html += '</div>';
             document.getElementById('wishlistContent').innerHTML = html;
         }
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopify Dashboard - All Public APIs</title>
+    <title>Shopify Intelligence Dashboard - Developer & Merchant Tool</title>
     <style>
         * {
             margin: 0;
@@ -266,29 +266,40 @@
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             font-size: 14px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         thead {
-            background: #f5f5f5;
-            border-bottom: 2px solid #ddd;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         th {
-            padding: 12px;
+            padding: 16px;
             text-align: left;
             font-weight: 600;
-            color: #333;
+            color: white;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
         }
 
-        tr:hover {
-            background: #f9f9f9;
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: #f8f9ff;
         }
 
         .search-box {
@@ -526,45 +537,47 @@
         }
 
         .product-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
         }
 
         .product-list-item {
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 15px;
-            display: flex;
-            gap: 15px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
             transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
         }
 
         .product-list-item:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
         }
 
         .product-list-image {
-            width: 100px;
-            height: 100px;
+            width: 100%;
+            height: 200px;
             background: #f5f5f5;
-            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
+            font-size: 48px;
         }
 
         .product-list-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 6px;
         }
 
         .product-list-info {
+            padding: 16px;
             flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .product-list-title {
@@ -572,25 +585,27 @@
             color: #333;
             margin-bottom: 8px;
             font-size: 15px;
+            line-height: 1.4;
         }
 
         .product-list-price {
             color: #667eea;
             font-weight: 700;
-            font-size: 16px;
+            font-size: 18px;
             margin-bottom: 8px;
         }
 
         .product-list-desc {
             font-size: 13px;
             color: #666;
-            margin-bottom: 10px;
-            line-height: 1.4;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            flex: 1;
         }
 
         .product-list-stock {
             font-size: 12px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .wishlist-item {
@@ -682,6 +697,10 @@
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
 
+            .product-list {
+                grid-template-columns: 1fr;
+            }
+
             .tabs {
                 flex-direction: column;
             }
@@ -697,14 +716,22 @@
             .store-input {
                 flex-direction: column;
             }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🛍️ Shopify Store Browser</h1>
-            <p class="subtitle">Browse Any Shopify Store - No Token Required (Public API)</p>
+            <h1>🛍️ Shopify Intelligence Dashboard</h1>
+            <p class="subtitle">Competitive Intelligence, Tech Stack Analysis & Changelog Monitor - No Auth Required</p>
             <div class="store-input">
                 <input type="text" id="storeName" placeholder="Store name (e.g., mystore or mystore.myshopify.com)" value="">
                 <button onclick="setStore()">Load Store</button>
@@ -715,19 +742,19 @@
         </header>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('shop')">🏪 Shop Info</button>
+            <button class="tab-btn active" onclick="switchTab('shop')">🏪 Intelligence</button>
             <button class="tab-btn" onclick="switchTab('products')">📦 Products</button>
-            <button class="tab-btn" onclick="switchTab('search')">🔍 Search</button>
             <button class="tab-btn" onclick="switchTab('collections')">📂 Collections</button>
             <button class="tab-btn" onclick="switchTab('inventory')">📊 Inventory</button>
-            <button class="tab-btn" onclick="switchTab('wishlist')">❤️ Wishlist</button>
+            <button class="tab-btn" onclick="switchTab('merchantUpdates')">�️ Merchant Updates</button>
+            <button class="tab-btn" onclick="switchTab('devUpdates')">⚙️ Developer Updates</button>
         </div>
 
-        <!-- Shop Info -->
+        <!-- Shop Intelligence -->
         <div id="shop" class="tab-content active">
             <div class="card">
-                <h2>🏪 Shop Information</h2>
-                <div id="shopInfo" class="loading"><div class="spinner"></div>Loading shop info...</div>
+                <h2>🏪 Store Intelligence & Analysis</h2>
+                <div id="shopInfo" class="loading"><div class="spinner"></div>Loading intelligence data...</div>
             </div>
         </div>
 
@@ -739,15 +766,21 @@
             </div>
         </div>
 
-        <!-- Search -->
-        <div id="search" class="tab-content">
+        <!-- Merchant Updates -->
+        <div id="merchantUpdates" class="tab-content">
             <div class="card">
-                <h2>🔍 Search Products</h2>
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Search by product name...">
-                    <button onclick="searchProducts()">Search</button>
-                </div>
-                <div id="searchResults"></div>
+                <h2>🛍️ Shopify Merchant Updates</h2>
+                <p style="color: #666; font-size: 14px; margin-bottom: 20px;">📡 Live updates from <a href="https://changelog.shopify.com" target="_blank" style="color: #667eea;">changelog.shopify.com</a></p>
+                <div id="merchantContent" class="loading"><div class="spinner"></div>Loading merchant updates...</div>
+            </div>
+        </div>
+
+        <!-- Developer Updates -->
+        <div id="devUpdates" class="tab-content">
+            <div class="card">
+                <h2>⚙️ Shopify Developer & API Updates</h2>
+                <p style="color: #666; font-size: 14px; margin-bottom: 20px;">📡 Live updates from <a href="https://shopify.dev/changelog" target="_blank" style="color: #667eea;">shopify.dev/changelog</a></p>
+                <div id="devContent" class="loading"><div class="spinner"></div>Loading developer updates...</div>
             </div>
         </div>
 
@@ -771,22 +804,119 @@
             </div>
         </div>
 
-        <!-- Wishlist -->
-        <div id="wishlist" class="tab-content">
-            <div class="card">
-                <h2>❤️ My Wishlist</h2>
-                <div id="wishlistContent">
-                    <p class="no-results">Your wishlist is empty. Add products from the Products tab!</p>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
         let currentStore = '';
         let allProducts = [];
-        let wishlistItems = [];
         let detectedCurrency = 'USD';
+        let changelogCache = null;
+        let changelogLastFetch = null;
+
+        const KNOWN_CURRENCY_CODES = ['USD','GBP','EUR','CAD','AUD','NZD','JPY','CHF','SEK','DKK','NOK','CNY','HKD','SGD','MXN','ZAR'];
+
+        async function tryFetchText(attempts) {
+            for (const attempt of attempts) {
+                try {
+                    const result = await attempt();
+                    if (result) return result;
+                } catch (error) {
+                    console.warn('Fetch attempt failed:', error);
+                }
+            }
+            return null;
+        }
+
+        async function fetchStoreHtml(storeName) {
+            const baseUrl = `https://${storeName}.myshopify.com`;
+            return tryFetchText([
+                async () => {
+                    const response = await fetch(baseUrl, { mode: 'cors' });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.text();
+                },
+                async () => {
+                    const response = await fetch(`https://r.jina.ai/${baseUrl}`);
+                    if (!response.ok) throw new Error(`Proxy HTTP ${response.status}`);
+                    return response.text();
+                },
+                async () => {
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(baseUrl)}`;
+                    const response = await fetch(proxyUrl);
+                    if (!response.ok) throw new Error(`AllOrigins HTTP ${response.status}`);
+                    return response.text();
+                }
+            ]);
+        }
+
+        function extractCurrencyFromHtml(html) {
+            if (!html) return null;
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const metaCandidate = doc.querySelector('meta[itemprop="priceCurrency"], meta[property="og:price:currency"], meta[name="priceCurrency"], meta[name="currency"]');
+                if (metaCandidate) {
+                    const value = metaCandidate.getAttribute('content') || metaCandidate.getAttribute('value');
+                    const match = value?.match(/[A-Z]{3}/i);
+                    if (match) return match[0].toUpperCase();
+                }
+
+                const scriptText = Array.from(doc.querySelectorAll('script')).map(script => script.textContent || '').join('\n');
+                const regexes = [
+                    /Shopify\.currency\s*=\s*{[^}]*['"]active['"]\s*:\s*['"]([A-Z]{3})['"]/i,
+                    /ShopifyAnalytics\s*=\s*{[^}]*"currency"\s*:\s*"([A-Z]{3})"/i,
+                    /"currency"\s*:\s*"([A-Z]{3})"/i,
+                    /shopCurrency\s*=\s*['"]([A-Z]{3})['"]/i
+                ];
+                for (const regex of regexes) {
+                    const match = regex.exec(scriptText);
+                    if (match && match[1]) return match[1].toUpperCase();
+                }
+
+                const symbolMap = [
+                    ['£', 'GBP'], ['&pound;', 'GBP'],
+                    ['€', 'EUR'], ['&euro;', 'EUR'],
+                    ['CA$', 'CAD'], ['AUD', 'AUD']
+                ];
+                for (const [symbol, code] of symbolMap) {
+                    if (html.includes(symbol)) return code;
+                }
+
+                const textMatch = html.match(new RegExp(`\\b(${KNOWN_CURRENCY_CODES.join('|')})\\b`, 'i'));
+                if (textMatch && textMatch[1]) return textMatch[1].toUpperCase();
+            } catch (error) {
+                console.warn('Failed to parse currency from HTML:', error);
+            }
+            return null;
+        }
+
+        async function detectStoreCurrency(storeName) {
+            const html = await fetchStoreHtml(storeName);
+            return extractCurrencyFromHtml(html);
+        }
+
+        async function detectCurrency(products, cartData, storeName) {
+            if (cartData?.currency && KNOWN_CURRENCY_CODES.includes(cartData.currency.toUpperCase())) {
+                return cartData.currency.toUpperCase();
+            }
+
+            const scraped = await detectStoreCurrency(storeName);
+            if (scraped && KNOWN_CURRENCY_CODES.includes(scraped)) {
+                return scraped;
+            }
+
+            if (products.length) {
+                for (const product of products) {
+                    const currencyCode = product.variants?.[0]?.presentment_prices?.[0]?.price?.currency_code;
+                    if (currencyCode && KNOWN_CURRENCY_CODES.includes(currencyCode.toUpperCase())) {
+                        return currencyCode.toUpperCase();
+                    }
+                }
+            }
+
+            return 'USD';
+        }
 
         // Clean store name (remove .myshopify.com if present)
         function cleanStoreName(name) {
@@ -797,6 +927,57 @@
             const div = document.createElement('div');
             div.innerHTML = html;
             return div.textContent || div.innerText || '';
+        }
+
+        function formatDateLabel(dateStr) {
+            if (!dateStr) return 'Recent';
+            const date = new Date(dateStr);
+            if (Number.isNaN(date.getTime())) {
+                return dateStr;
+            }
+            const today = new Date();
+            const sameDay = date.toDateString() === today.toDateString();
+            if (sameDay) {
+                return 'Today';
+            }
+            return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
+        async function fetchRssFeed(urls) {
+            return tryFetchText(urls.map(url => async () => {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`RSS HTTP ${response.status}`);
+                return response.text();
+            }));
+        }
+
+        function parseRssFeed(xmlText, baseUrl) {
+            if (!xmlText) return [];
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(xmlText, 'application/xml');
+                if (doc.querySelector('parsererror')) {
+                    throw new Error('Invalid RSS payload');
+                }
+                const items = Array.from(doc.querySelectorAll('item')).slice(0, 10);
+                return items.map(item => {
+                    const title = item.querySelector('title')?.textContent?.trim() || 'Update';
+                    const linkRaw = item.querySelector('link')?.textContent?.trim() || baseUrl;
+                    const url = linkRaw.startsWith('http') ? linkRaw : `${baseUrl.replace(/\/$/, '')}/${linkRaw.replace(/^\//, '')}`;
+                    const description = item.querySelector('description')?.textContent || '';
+                    const pubDate = item.querySelector('pubDate')?.textContent?.trim() || '';
+                    return {
+                        title,
+                        url,
+                        rawDate: pubDate,
+                        dateLabel: formatDateLabel(pubDate),
+                        excerpt: stripHtml(description).substring(0, 200)
+                    };
+                });
+            } catch (error) {
+                console.warn('Failed to parse RSS feed:', error);
+                return [];
+            }
         }
 
         function escapeHtml(str = '') {
@@ -836,8 +1017,6 @@
                 const target = document.getElementById(id);
                 if (target) target.innerHTML = message;
             });
-            document.getElementById('searchResults').innerHTML = '';
-            document.getElementById('wishlistContent').innerHTML = '<p class="no-results">Your wishlist is empty. Add products from the Products tab!</p>';
         }
 
         async function fetchShopifyJson(endpoint, params = {}) {
@@ -902,7 +1081,9 @@
                 await loadProducts();
                 await Promise.all([
                     loadShopInfo(),
-                    loadCollections()
+                    loadCollections(),
+                    loadMerchantChangelog(),
+                    loadDevChangelog()
                 ]);
             } catch (error) {
                 console.error('Failed to load store data:', error);
@@ -915,113 +1096,143 @@
             el.innerHTML = '<div class="progress-bar"><div class="progress-fill"></div></div><p style="text-align: center; color: #999;">Loading...</p>';
         }
 
-        // Load Shop Info
+        // Load Shop Intelligence
         async function loadShopInfo() {
             showProgress('shopInfo');
             try {
                 if (!allProducts.length) {
-                    const fallbackProducts = await fetchShopifyJson('products', { limit: 1 });
+                    const fallbackProducts = await fetchShopifyJson('products', { limit: 250 });
                     allProducts = fallbackProducts.products || [];
                 }
 
                 const [collectionsData, cartData] = await Promise.all([
-                    fetchShopifyJson('collections', { limit: 20 }).catch(() => ({ collections: [] })),
+                    fetchShopifyJson('collections', { limit: 50 }).catch(() => ({ collections: [] })),
                     fetchCartInfo().catch(() => null)
                 ]);
 
-                if (cartData?.currency) {
-                    detectedCurrency = cartData.currency;
-                } else if (allProducts.length && allProducts[0]?.variants?.[0]?.presentment_prices?.[0]?.price?.currency_code) {
-                    detectedCurrency = allProducts[0].variants[0].presentment_prices[0].price.currency_code;
+                detectedCurrency = await detectCurrency(allProducts, cartData, currentStore);
+
+                // Re-render dependent views with updated currency
+                displayProducts(allProducts, 'productsList');
+                displayInventory(allProducts);
+
+                const intelligence = analyzeStore(allProducts, collectionsData.collections || []);
+                
+                let infoHtml = '<div class="stats">';
+                infoHtml += `<div class="stat-card"><div class="stat-value">${allProducts.length}</div><div class="stat-label">Total Products</div></div>`;
+                infoHtml += `<div class="stat-card"><div class="stat-value">${collectionsData.collections?.length || 0}</div><div class="stat-label">Collections</div></div>`;
+                infoHtml += `<div class="stat-card"><div class="stat-value">${intelligence.vendors.size}</div><div class="stat-label">Unique Vendors</div></div>`;
+                infoHtml += `<div class="stat-card"><div class="stat-value">${formatCurrency(intelligence.avgPrice, detectedCurrency)}</div><div class="stat-label">Avg Price</div></div>`;
+                infoHtml += '</div>';
+
+                // Pricing Intelligence
+                infoHtml += `
+                    <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #4caf50;">
+                        <h3 style="margin-top: 0; margin-bottom: 15px; color: #2e7d32;">💰 Pricing Intelligence</h3>
+                        <div class="info-grid">
+                            <div class="info-box" style="border-left-color: #4caf50;">
+                                <div class="info-label">Price Range</div>
+                                <div class="info-value">${formatCurrency(intelligence.minPrice, detectedCurrency)} - ${formatCurrency(intelligence.maxPrice, detectedCurrency)}</div>
+                            </div>
+                            <div class="info-box" style="border-left-color: #4caf50;">
+                                <div class="info-label">Median Price</div>
+                                <div class="info-value">${formatCurrency(intelligence.medianPrice, detectedCurrency)}</div>
+                            </div>
+                            <div class="info-box" style="border-left-color: #4caf50;">
+                                <div class="info-label">In Stock Rate</div>
+                                <div class="info-value">${intelligence.stockRate}%</div>
+                            </div>
+                            <div class="info-box" style="border-left-color: #4caf50;">
+                                <div class="info-label">Currency</div>
+                                <div class="info-value">${detectedCurrency}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                if (intelligence.lowestPriced || intelligence.highestPriced) {
+                    infoHtml += `
+                        <div style="background: #fff3e0; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #fb8c00;">
+                            <h3 style="margin-top: 0; margin-bottom: 15px; color: #e65100;">🏷️ Price Extremes</h3>
+                            <div class="info-grid">
+                                ${intelligence.lowestPriced ? `
+                                    <div class="info-box" style="border-left-color: #43a047;">
+                                        <div class="info-label">Cheapest Product</div>
+                                        <div class="info-value">${formatCurrency(intelligence.lowestPriced.price, intelligence.lowestPriced.currency || detectedCurrency)}</div>
+                                        <div style="font-size: 13px; color: #555; margin-top: 6px;">
+                                            ${escapeHtml(intelligence.lowestPriced.title)}
+                                        </div>
+                                        ${intelligence.lowestPriced.handle ? `<a href="https://${currentStore}.myshopify.com/products/${intelligence.lowestPriced.handle}" target="_blank" style="display: inline-block; margin-top: 8px; font-size: 13px; color: #667eea; text-decoration: none; font-weight: 600;">View product →</a>` : ''}
+                                    </div>
+                                ` : ''}
+                                ${intelligence.highestPriced ? `
+                                    <div class="info-box" style="border-left-color: #c62828;">
+                                        <div class="info-label">Most Expensive Product</div>
+                                        <div class="info-value">${formatCurrency(intelligence.highestPriced.price, intelligence.highestPriced.currency || detectedCurrency)}</div>
+                                        <div style="font-size: 13px; color: #555; margin-top: 6px;">
+                                            ${escapeHtml(intelligence.highestPriced.title)}
+                                        </div>
+                                        ${intelligence.highestPriced.handle ? `<a href="https://${currentStore}.myshopify.com/products/${intelligence.highestPriced.handle}" target="_blank" style="display: inline-block; margin-top: 8px; font-size: 13px; color: #667eea; text-decoration: none; font-weight: 600;">View product →</a>` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
                 }
 
-                const firstProduct = allProducts[0];
-                const description = firstProduct ? (stripHtml(firstProduct.body_html || '').slice(0, 220) || 'No description available.') : 'No products available to display description.';
-                
-                let infoHtml = '<div class="info-grid">';
-                
-                // Store Domain (always show)
-                infoHtml += `
-                    <div class="info-box">
-                        <div class="info-label">Store Domain</div>
-                        <div class="info-value"><a href="https://${currentStore}.myshopify.com" target="_blank" style="color: #667eea; text-decoration: none;">https://${currentStore}.myshopify.com</a></div>
-                    </div>
-                `;
-                
-                // Products count (always show)
-                infoHtml += `
-                    <div class="info-box">
-                        <div class="info-label">Products Available</div>
-                        <div class="info-value">${allProducts.length}</div>
-                    </div>
-                `;
-                
-                // Collections count (only if available)
-                if (collectionsData.collections?.length) {
+                // Product Categories
+                if (intelligence.topTypes.length) {
                     infoHtml += `
-                        <div class="info-box">
-                            <div class="info-label">Collections</div>
-                            <div class="info-value">${collectionsData.collections.length}</div>
+                        <div style="background: #f3e5f5; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #9c27b0;">
+                            <h3 style="margin-top: 0; margin-bottom: 15px; color: #6a1b9a;">📂 Top Product Categories</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                ${intelligence.topTypes.map(t => `<span style="background: white; padding: 8px 15px; border-radius: 20px; font-size: 13px; color: #6a1b9a; font-weight: 600;">${escapeHtml(t.type)} (${t.count})</span>`).join('')}
+                            </div>
                         </div>
                     `;
                 }
-                
-                // Currency (only if detected)
-                if (detectedCurrency && detectedCurrency !== 'USD') {
+
+                // Vendor Analysis
+                if (intelligence.topVendors.length) {
                     infoHtml += `
-                        <div class="info-box">
-                            <div class="info-label">Currency</div>
-                            <div class="info-value">${detectedCurrency}</div>
+                        <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #2196f3;">
+                            <h3 style="margin-top: 0; margin-bottom: 15px; color: #1565c0;">🏭 Top Vendors</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                ${intelligence.topVendors.map(v => `<span style="background: white; padding: 8px 15px; border-radius: 20px; font-size: 13px; color: #1565c0; font-weight: 600;">${escapeHtml(v.vendor)} (${v.count})</span>`).join('')}
+                            </div>
                         </div>
                     `;
                 }
-                
-                // Vendor (only if available)
-                if (firstProduct?.vendor) {
+
+                // SEO & Tags Insights
+                if (intelligence.topTags.length) {
                     infoHtml += `
-                        <div class="info-box">
-                            <div class="info-label">Sample Vendor</div>
-                            <div class="info-value">${escapeHtml(firstProduct.vendor)}</div>
+                        <div style="background: #fff3e0; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #ff9800;">
+                            <h3 style="margin-top: 0; margin-bottom: 15px; color: #e65100;">🏷️ Popular Tags & SEO Keywords</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                ${intelligence.topTags.map(t => `<span style="background: white; padding: 6px 12px; border-radius: 15px; font-size: 12px; color: #e65100;">${escapeHtml(t.tag)} (${t.count})</span>`).join('')}
+                            </div>
                         </div>
                     `;
                 }
-                
-                infoHtml += '</div>';
-                
-                // Description section (only if available)
-                if (description && description !== 'No products available to display description.') {
-                    infoHtml += `
-                        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 20px;">
-                            <h3 style="margin-bottom: 10px; color: #333;">📝 Description Snippet</h3>
-                            <p style="color: #666; line-height: 1.6;">${description}</p>
-                        </div>
-                    `;
-                }
-                
-                // Public API URLs section
+
+                // Quick Actions
                 infoHtml += `
-                    <div style="background: #fff3e0; padding: 20px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #ff9800;">
-                        <h3 style="margin-top: 0; margin-bottom: 15px; color: #333;">🔗 Public API Endpoints</h3>
-                        <p style="color: #666; font-size: 13px; margin-bottom: 15px;">You can access these URLs directly in your browser to view raw JSON data:</p>
-                        <div style="background: white; padding: 15px; border-radius: 6px; border: 1px solid #ffe0b2;">
-                            <p style="margin: 8px 0; font-size: 12px;"><strong>Products:</strong><br><a href="https://${currentStore}.myshopify.com/products.json" target="_blank" style="color: #667eea; word-break: break-all;">https://${currentStore}.myshopify.com/products.json</a></p>
-                            <p style="margin: 8px 0; font-size: 12px;"><strong>Collections:</strong><br><a href="https://${currentStore}.myshopify.com/collections.json" target="_blank" style="color: #667eea; word-break: break-all;">https://${currentStore}.myshopify.com/collections.json</a></p>
-                            <p style="margin: 8px 0; font-size: 12px;"><strong>Cart Info:</strong><br><a href="https://${currentStore}.myshopify.com/cart.js" target="_blank" style="color: #667eea; word-break: break-all;">https://${currentStore}.myshopify.com/cart.js</a></p>
-                            <p style="margin: 8px 0; font-size: 12px;"><strong>Shop Front:</strong><br><a href="https://${currentStore}.myshopify.com" target="_blank" style="color: #667eea; word-break: break-all;">https://${currentStore}.myshopify.com</a></p>
+                    <div style="background: #f0f4ff; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+                        <h3 style="margin-top: 0; margin-bottom: 15px; color: #333;">🔗 Quick Actions</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                            <a href="https://${currentStore}.myshopify.com" target="_blank" style="background: white; padding: 12px; border-radius: 6px; text-decoration: none; color: #667eea; font-weight: 600; text-align: center; border: 2px solid #667eea; transition: all 0.3s;" onmouseover="this.style.background='#667eea'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='#667eea';">🛍️ Visit Store</a>
+                            <a href="https://${currentStore}.myshopify.com/products.json" target="_blank" style="background: white; padding: 12px; border-radius: 6px; text-decoration: none; color: #667eea; font-weight: 600; text-align: center; border: 2px solid #667eea; transition: all 0.3s;" onmouseover="this.style.background='#667eea'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='#667eea';">📦 Products JSON</a>
+                            <a href="https://${currentStore}.myshopify.com/collections.json" target="_blank" style="background: white; padding: 12px; border-radius: 6px; text-decoration: none; color: #667eea; font-weight: 600; text-align: center; border: 2px solid #667eea; transition: all 0.3s;" onmouseover="this.style.background='#667eea'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='#667eea';">📂 Collections JSON</a>
+                            <a href="https://${currentStore}.myshopify.com/sitemap.xml" target="_blank" style="background: white; padding: 12px; border-radius: 6px; text-decoration: none; color: #667eea; font-weight: 600; text-align: center; border: 2px solid #667eea; transition: all 0.3s;" onmouseover="this.style.background='#667eea'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='#667eea';">🗺️ Sitemap</a>
                         </div>
-                    </div>
-                `;
-                
-                infoHtml += `
-                    <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #667eea;">
-                        <p style="color: #555; font-size: 13px; margin: 0;">ℹ️ Data sourced from Shopify's public JSON endpoints. Only publicly available product information is displayed.</p>
                     </div>
                 `;
 
                 document.getElementById('shopInfo').innerHTML = infoHtml;
             } catch (error) {
                 console.error('Shop info load failed:', error);
-                document.getElementById('shopInfo').innerHTML = `<div class="error">❌ Failed to load shop info. ${error.message}</div>`;
+                document.getElementById('shopInfo').innerHTML = `<div class="error">❌ Failed to load intelligence data. ${error.message}</div>`;
             }
         }
 
@@ -1065,19 +1276,15 @@
                 const price = variant?.price || product.price || 0;
                 const image = product.images?.[0]?.src;
                 const inStock = typeof variant?.available === 'boolean' ? variant.available : (variant?.inventory_quantity || 0) > 0;
-                const desc = stripHtml(product.body_html || '').substring(0, 120) || 'No description provided.';
+                const desc = stripHtml(product.body_html || '').substring(0, 100) || 'No description available.';
                 const currency = variant?.presentment_prices?.[0]?.price?.currency_code || detectedCurrency || 'USD';
-                const variantId = variant?.id ? String(variant.id) : null;
                 const title = product.title || 'Untitled Product';
-                const safeTitle = JSON.stringify(title);
                 const safeTitleText = escapeHtml(title);
-                const safeVariant = JSON.stringify(variantId || '');
-                const safePrice = JSON.stringify(Number(price) || 0);
 
                 html += `
                     <div class="product-list-item">
                         <div class="product-list-image">
-                            ${image ? `<img src="${image}" alt="${safeTitleText}">` : '📦'}
+                            ${image ? `<img src="${image}" alt="${safeTitleText}" loading="lazy">` : '📦'}
                         </div>
                         <div class="product-list-info">
                             <div class="product-list-title">${safeTitleText}</div>
@@ -1088,7 +1295,7 @@
                                     ${inStock ? '✓ In Stock' : '✗ Out of Stock'}
                                 </span>
                             </div>
-                            ${variantId ? `<button class="btn-small" onclick="addToWishlist(${safeVariant}, ${safeTitle}, ${safePrice}, '${currency}')">♥ Add to Wishlist</button>` : '<button class="btn-small" disabled>Variant unavailable</button>'}
+                            <a href="https://${currentStore}.myshopify.com/products/${product.handle || ''}" target="_blank" class="btn-small" style="text-decoration: none; display: block; text-align: center;">� View Product</a>
                         </div>
                     </div>
                 `;
@@ -1097,41 +1304,207 @@
             document.getElementById(elementId).innerHTML = html;
         }
 
-        // Search Products (client-side)
-        function searchProducts() {
-            const queryRaw = document.getElementById('searchInput').value.trim();
-            const query = queryRaw.toLowerCase();
-            if (!query) {
-                alert('Please enter a search term');
-                return;
-            }
+        // Analyze Store Intelligence
+        function analyzeStore(products, collections) {
+            const prices = [];
+            const vendors = new Set();
+            const types = {};
+            const tags = {};
+            let inStockCount = 0;
+            let lowestPriced = null;
+            let highestPriced = null;
 
-            if (!allProducts.length) {
-                document.getElementById('searchResults').innerHTML = '<div class="error">❌ Load products first, then search.</div>';
-                return;
-            }
+            products.forEach(product => {
+                const variant = product.variants?.[0];
+                const price = parseFloat(variant?.price || product.price || 0);
+                if (price > 0) prices.push(price);
+                if (price > 0) {
+                    if (!lowestPriced || price < lowestPriced.price) {
+                        lowestPriced = {
+                            title: product.title || 'Untitled Product',
+                            price,
+                            handle: product.handle || '',
+                            currency: variant?.presentment_prices?.[0]?.price?.currency_code || detectedCurrency
+                        };
+                    }
+                    if (!highestPriced || price > highestPriced.price) {
+                        highestPriced = {
+                            title: product.title || 'Untitled Product',
+                            price,
+                            handle: product.handle || '',
+                            currency: variant?.presentment_prices?.[0]?.price?.currency_code || detectedCurrency
+                        };
+                    }
+                }
 
-            document.getElementById('searchResults').innerHTML = '<div class="progress-bar"><div class="progress-fill"></div></div>';
+                if (product.vendor) vendors.add(product.vendor);
+                
+                if (product.product_type) {
+                    types[product.product_type] = (types[product.product_type] || 0) + 1;
+                }
 
-            const filtered = allProducts.filter(product => {
-                const title = (product.title || '').toLowerCase();
-                const tags = (product.tags || '').toLowerCase();
-                const vendor = (product.vendor || '').toLowerCase();
-                const type = (product.product_type || '').toLowerCase();
-                const haystack = `${title} ${tags} ${vendor} ${type}`;
-                return haystack.includes(query);
+                if (product.tags) {
+                    let tagList = [];
+                    if (Array.isArray(product.tags)) {
+                        tagList = product.tags;
+                    } else if (typeof product.tags === 'string') {
+                        tagList = product.tags.split(',').map(t => t.trim()).filter(t => t);
+                    }
+                    tagList.forEach(tag => {
+                        if (tag) tags[tag] = (tags[tag] || 0) + 1;
+                    });
+                }
+
+                const inStock = variant?.available || (variant?.inventory_quantity || 0) > 0;
+                if (inStock) inStockCount++;
             });
 
-            let resultHtml = `<div class="success">✓ Found ${filtered.length} product${filtered.length !== 1 ? 's' : ''} matching "${escapeHtml(queryRaw)}"</div>`;
-            
-            if (filtered.length === 0) {
-                resultHtml = `<div class="error">❌ No products found matching "${escapeHtml(queryRaw)}". Searching by: title, tags, vendor, type.</div>`;
-                document.getElementById('searchResults').innerHTML = resultHtml;
+            prices.sort((a, b) => a - b);
+            const avgPrice = prices.length ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
+            const medianPrice = prices.length ? prices[Math.floor(prices.length / 2)] : 0;
+            const minPrice = prices.length ? prices[0] : 0;
+            const maxPrice = prices.length ? prices[prices.length - 1] : 0;
+            const stockRate = products.length ? Math.round((inStockCount / products.length) * 100) : 0;
+
+            const topTypes = Object.entries(types)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8)
+                .map(([type, count]) => ({ type, count }));
+
+            const topVendors = Array.from(vendors)
+                .map(vendor => ({ vendor, count: products.filter(p => p.vendor === vendor).length }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 6);
+
+            const topTags = Object.entries(tags)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 15)
+                .map(([tag, count]) => ({ tag, count }));
+
+            return {
+                avgPrice,
+                medianPrice,
+                minPrice,
+                maxPrice,
+                stockRate,
+                vendors,
+                topTypes,
+                topVendors,
+                topTags,
+                lowestPriced,
+                highestPriced
+            };
+        }
+
+        // Load Merchant Changelog
+        async function loadMerchantChangelog() {
+            const now = Date.now();
+            if (changelogCache?.merchant && changelogLastFetch && (now - changelogLastFetch) < 300000) {
+                displayMerchantChangelog(changelogCache.merchant);
                 return;
             }
 
-            document.getElementById('searchResults').innerHTML = resultHtml;
-            displayProducts(filtered, 'searchResults');
+            showProgress('merchantContent');
+            const entries = await fetchMerchantChangelog();
+            if (!changelogCache) changelogCache = {};
+            changelogCache.merchant = entries;
+            changelogLastFetch = now;
+            displayMerchantChangelog(entries);
+        }
+
+        // Load Developer Changelog
+        async function loadDevChangelog() {
+            const now = Date.now();
+            if (changelogCache?.dev && changelogLastFetch && (now - changelogLastFetch) < 300000) {
+                displayDevChangelog(changelogCache.dev);
+                return;
+            }
+
+            showProgress('devContent');
+            const entries = await fetchDevChangelog();
+            if (!changelogCache) changelogCache = {};
+            changelogCache.dev = entries;
+            changelogLastFetch = now;
+            displayDevChangelog(entries);
+        }
+
+        async function fetchMerchantChangelog() {
+            try {
+                const rssText = await fetchRssFeed([
+                    'https://r.jina.ai/https://changelog.shopify.com/posts.rss',
+                    `https://api.allorigins.win/raw?url=${encodeURIComponent('https://changelog.shopify.com/posts.rss')}`
+                ]);
+                const entries = parseRssFeed(rssText, 'https://changelog.shopify.com');
+                return entries.length ? entries : [{ title: 'Visit changelog.shopify.com', url: 'https://changelog.shopify.com', dateLabel: 'Live', excerpt: 'Unable to load feed automatically. Click to view the latest updates.' }];
+            } catch (error) {
+                console.error('Merchant changelog failed:', error);
+                return [{ title: 'Visit changelog.shopify.com', url: 'https://changelog.shopify.com', dateLabel: 'Live', excerpt: 'Unable to load merchant updates automatically.' }];
+            }
+        }
+
+        async function fetchDevChangelog() {
+            try {
+                const rssText = await fetchRssFeed([
+                    'https://r.jina.ai/https://shopify.dev/changelog/feed',
+                    'https://r.jina.ai/https://shopify.dev/changelog/feed.xml',
+                    `https://api.allorigins.win/raw?url=${encodeURIComponent('https://shopify.dev/changelog/feed')}`
+                ]);
+                const entries = parseRssFeed(rssText, 'https://shopify.dev');
+                return entries.length ? entries : [{ title: 'Visit shopify.dev/changelog', url: 'https://shopify.dev/changelog', dateLabel: 'Live', excerpt: 'Unable to load developer updates automatically.' }];
+            } catch (error) {
+                console.error('Developer changelog failed:', error);
+                return [{ title: 'Visit shopify.dev/changelog', url: 'https://shopify.dev/changelog', dateLabel: 'Live', excerpt: 'Unable to load developer updates automatically.' }];
+            }
+        }
+
+        function displayMerchantChangelog(entries) {
+            if (!entries.length) {
+                document.getElementById('merchantContent').innerHTML = '<div class="error">No merchant updates available.</div>';
+                return;
+            }
+
+            let html = '<div style="display: grid; gap: 16px;">';
+            entries.forEach((entry, idx) => {
+                const isLatest = idx === 0;
+                html += `
+                    <div style="padding: 20px; background: ${isLatest ? '#f0f4ff' : 'white'}; border-radius: 12px; border-left: 4px solid ${isLatest ? '#667eea' : '#e0e0e0'}; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                        <div style="display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+                            <a href="${entry.url}" target="_blank" style="color: #333; text-decoration: none; font-weight: 600; font-size: 16px; flex: 1;">${escapeHtml(entry.title)}</a>
+                            ${isLatest ? '<span style="background: #667eea; color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; white-space: nowrap;">LATEST</span>' : ''}
+                        </div>
+                        <div style="font-size: 12px; color: #999; margin-bottom: 12px;">📅 ${escapeHtml(entry.dateLabel || entry.rawDate || 'Recent')}</div>
+                        ${entry.excerpt ? `<p style="margin: 0; color: #666; font-size: 14px; line-height: 1.6;">${escapeHtml(entry.excerpt)}</p>` : ''}
+                        <a href="${entry.url}" target="_blank" style="display: inline-block; margin-top: 12px; font-size: 13px; color: #667eea; text-decoration: none; font-weight: 600;">Read full update →</a>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            document.getElementById('merchantContent').innerHTML = html;
+        }
+
+        function displayDevChangelog(entries) {
+            if (!entries.length) {
+                document.getElementById('devContent').innerHTML = '<div class="error">No developer updates available.</div>';
+                return;
+            }
+
+            let html = '<div style="display: grid; gap: 16px;">';
+            entries.forEach((entry, idx) => {
+                const isLatest = idx === 0;
+                html += `
+                    <div style="padding: 20px; background: ${isLatest ? '#f0f4ff' : 'white'}; border-radius: 12px; border-left: 4px solid ${isLatest ? '#667eea' : '#e0e0e0'}; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                        <div style="display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+                            <a href="${entry.url}" target="_blank" style="color: #333; text-decoration: none; font-weight: 600; font-size: 16px; flex: 1;">${escapeHtml(entry.title)}</a>
+                            ${isLatest ? '<span style="background: #667eea; color: white; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600; white-space: nowrap;">LATEST</span>' : ''}
+                        </div>
+                        <div style="font-size: 12px; color: #999; margin-bottom: 12px;">📅 ${escapeHtml(entry.dateLabel || entry.rawDate || 'Recent')}</div>
+                        ${entry.excerpt ? `<p style="margin: 0; color: #666; font-size: 14px; line-height: 1.6;">${escapeHtml(entry.excerpt)}</p>` : ''}
+                        <a href="${entry.url}" target="_blank" style="display: inline-block; margin-top: 12px; font-size: 13px; color: #667eea; text-decoration: none; font-weight: 600;">Read full update →</a>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            document.getElementById('devContent').innerHTML = html;
         }
 
         // Load Collections
@@ -1148,20 +1521,19 @@
                 let html = '<div class="product-list">';
                 collections.forEach(col => {
                     const image = col.image?.src;
-                    const desc = stripHtml(col.body_html || '').substring(0, 160) || 'No description provided.';
+                    const desc = stripHtml(col.body_html || '').substring(0, 120) || 'No description available.';
                     const title = escapeHtml(col.title || 'Untitled Collection');
-                    const handle = escapeHtml(col.handle || 'n/a');
+                    const productCount = col.products_count || 0;
                     html += `
                         <div class="product-list-item">
                             <div class="product-list-image">
-                                ${image ? `<img src="${image}" alt="${title}">` : '📂'}
+                                ${image ? `<img src="${image}" alt="${title}" loading="lazy">` : '📂'}
                             </div>
                             <div class="product-list-info">
                                 <div class="product-list-title">${title}</div>
                                 <div class="product-list-desc">${desc}</div>
-                                <div class="product-list-stock">
-                                    <strong>Handle:</strong> ${handle}
-                                </div>
+                                ${productCount > 0 ? `<div class="product-list-stock" style="color: #667eea; font-weight: 600;">${productCount} products</div>` : ''}
+                                <a href="https://${currentStore}.myshopify.com/collections/${col.handle || ''}" target="_blank" class="btn-small" style="text-decoration: none; display: block; text-align: center; margin-top: auto;">🔗 View Collection</a>
                             </div>
                         </div>
                     `;
@@ -1188,18 +1560,16 @@
                 return;
             }
 
-            let html = '<table><thead><tr><th>Product</th><th>Price</th><th>Stock Status</th><th>Quantity</th></tr></thead><tbody>';
+            let html = '<table><thead><tr><th>Product</th><th>Price</th><th>Stock Status</th></tr></thead><tbody>';
             products.forEach(product => {
                 const variant = product.variants?.[0];
-                const inStock = typeof variant?.available === 'boolean' ? variant.available : variant?.inventory_quantity > 0;
-                const quantity = typeof variant?.inventory_quantity === 'number' ? variant.inventory_quantity : 'N/A';
+                const inStock = typeof variant?.available === 'boolean' ? variant.available : (variant?.inventory_quantity || 0) > 0;
                 const currency = variant?.presentment_prices?.[0]?.price?.currency_code || detectedCurrency;
                 html += `
                     <tr>
                         <td>${product.title || 'Untitled Product'}</td>
                         <td>${formatCurrency(variant?.price || product.price || 0, currency)}</td>
                         <td><span class="${inStock ? 'stock-available' : 'stock-unavailable'}">${inStock ? '✓ Available' : '✗ Out of Stock'}</span></td>
-                        <td>${quantity}</td>
                     </tr>
                 `;
             });
@@ -1208,67 +1578,6 @@
         }
 
 
-        // Add to Wishlist
-        function addToWishlist(variantId, title, price, currency) {
-            if (!variantId) {
-                alert('Unable to add this product because no sellable variant is available.');
-                return;
-            }
-            const item = { id: variantId, title, price, currency: currency || detectedCurrency || 'USD' };
-            if (!wishlistItems.find(w => w.id === variantId)) {
-                wishlistItems.push(item);
-                updateWishlistDisplay();
-                alert(`${title} added to wishlist!`);
-            } else {
-                alert('This product is already in your wishlist');
-            }
-        }
-
-        // Update Wishlist Display
-        function updateWishlistDisplay() {
-            if (wishlistItems.length === 0) {
-                document.getElementById('wishlistContent').innerHTML = '<p class="no-results">Your wishlist is empty. Add products from the Products tab!</p>';
-                return;
-            }
-
-            let html = '<div style="margin-bottom: 20px; padding: 15px; background: #f0f4ff; border-radius: 8px; border-left: 4px solid #667eea;">';
-            html += `<p style="margin: 0; color: #555; font-size: 14px;"><strong>Total Items:</strong> ${wishlistItems.length}</p>`;
-            html += '</div>';
-            
-            html += '<div class="product-list">';
-            wishlistItems.forEach((item, index) => {
-                const itemPrice = formatCurrency(item.price, item.currency);
-                html += `
-                    <div class="product-list-item">
-                        <div class="product-list-info" style="flex: 1;">
-                            <div class="product-list-title">${escapeHtml(item.title)}</div>
-                            <div class="product-list-price">${itemPrice}</div>
-                            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                <button class="btn-small" style="flex: 1; background: #667eea;" onclick="addWishlistToCart('${item.id}')">🛒 Add to Cart</button>
-                                <button class="btn-small" style="flex: 1; background: #ffebee; color: #c62828;" onclick="removeFromWishlist(${index})">✕ Remove</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            document.getElementById('wishlistContent').innerHTML = html;
-        }
-
-        // Remove from Wishlist
-        function removeFromWishlist(index) {
-            wishlistItems.splice(index, 1);
-            updateWishlistDisplay();
-        }
-
-        // Add Wishlist Item to Cart
-        function addWishlistToCart(variantId) {
-            if (!currentStore || !variantId) {
-                alert('Missing store or variant information');
-                return;
-            }
-            window.open(`https://${currentStore}.myshopify.com/cart/${variantId}:1`, '_blank');
-        }
 
 
         // Tab Switching
@@ -1289,8 +1598,11 @@
             if (tabName === 'inventory' && allProducts.length === 0) {
                 loadProducts();
             }
-            if (tabName === 'bundle' && bundleItems.length === 0) {
-                loadBundleProducts();
+            if (tabName === 'merchantUpdates' && !changelogCache?.merchant) {
+                loadMerchantChangelog();
+            }
+            if (tabName === 'devUpdates' && !changelogCache?.dev) {
+                loadDevChangelog();
             }
         }
 

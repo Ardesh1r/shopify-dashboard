@@ -302,51 +302,115 @@
             background: #f8f9ff;
         }
 
-        .search-box {
-            margin-bottom: 20px;
+        .search-toolbar {
             display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.08));
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+        }
+
+        .search-toolbar .search-field {
+            flex: 1 1 260px;
+        }
+
+        .search-field {
+            display: flex;
+            align-items: center;
             gap: 10px;
+            background: white;
+            border: 1px solid rgba(102, 126, 234, 0.25);
+            border-radius: 10px;
+            padding: 10px 14px;
+            box-shadow: inset 0 1px 3px rgba(102, 126, 234, 0.12);
         }
 
-        .search-box input {
-            flex: 1;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        .search-box button {
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
+        .search-field input {
             border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
+            outline: none;
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+            background: transparent;
         }
 
-        .filter-group {
-            margin-bottom: 20px;
+        .search-field input::placeholder {
+            color: #9aa5d1;
+        }
+
+        .search-icon {
+            color: #667eea;
+            font-size: 16px;
             display: flex;
+            align-items: center;
+        }
+
+        .search-actions {
+            display: flex;
+            align-items: center;
             gap: 10px;
             flex-wrap: wrap;
         }
 
-        .filter-group label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #666;
+        .search-count {
+            font-size: 13px;
+            color: #667eea;
+            font-weight: 600;
         }
 
-        .filter-group input,
-        .filter-group select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
+        .search-reset,
+        .search-select {
+            border-radius: 8px;
+            font-weight: 600;
+            border: 1px solid rgba(102, 126, 234, 0.35);
+            background: white;
+            color: #667eea;
+            padding: 8px 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .search-reset:hover {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.25);
+        }
+
+        .search-select {
+            padding-right: 28px;
+            font-size: 13px;
+            appearance: none;
+            background-image: linear-gradient(45deg, transparent 50%, #667eea 50%), linear-gradient(135deg, #667eea 50%, transparent 50%);
+            background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+            background-size: 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+        }
+
+        .search-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .search-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .search-reset,
+            .search-select {
+                width: 100%;
+                text-align: center;
+            }
         }
 
         .stats {
@@ -762,6 +826,22 @@
         <div id="products" class="tab-content">
             <div class="card">
                 <h2>📦 All Products</h2>
+                <div class="search-toolbar" id="productsSearchBar">
+                    <div class="search-field">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="productsSearch" placeholder="Search products by name, vendor, or type..." oninput="filterProducts()">
+                    </div>
+                    <div class="search-actions">
+                        <select id="productTypeFilter" class="search-select" onchange="filterProducts()">
+                            <option value="">All Types</option>
+                        </select>
+                        <select id="productVendorFilter" class="search-select" onchange="filterProducts()">
+                            <option value="">All Vendors</option>
+                        </select>
+                        <span class="search-count" id="productsCount">0 results</span>
+                        <button class="search-reset" onclick="resetProductFilters()">Reset</button>
+                    </div>
+                </div>
                 <div id="productsList" class="loading"><div class="spinner"></div>Loading products...</div>
             </div>
         </div>
@@ -796,9 +876,20 @@
         <div id="inventory" class="tab-content">
             <div class="card">
                 <h2>📊 Inventory Status</h2>
-                <div class="filter-group">
-                    <input type="text" id="inventorySearch" placeholder="Search products...">
-                    <button onclick="filterInventory()">Filter</button>
+                <div class="search-toolbar" id="inventorySearchBar">
+                    <div class="search-field">
+                        <span class="search-icon">🔎</span>
+                        <input type="text" id="inventorySearch" placeholder="Search inventory by title or vendor..." oninput="filterInventory()">
+                    </div>
+                    <div class="search-actions">
+                        <select id="inventoryStockFilter" class="search-select" onchange="filterInventory()">
+                            <option value="">Stock Status</option>
+                            <option value="in">In Stock</option>
+                            <option value="out">Out of Stock</option>
+                        </select>
+                        <span class="search-count" id="inventoryCount">0 items</span>
+                        <button class="search-reset" onclick="resetInventoryFilters()">Reset</button>
+                    </div>
                 </div>
                 <div id="inventoryList" class="loading"><div class="spinner"></div>Loading inventory...</div>
             </div>
@@ -1113,8 +1204,8 @@
                 detectedCurrency = await detectCurrency(allProducts, cartData, currentStore);
 
                 // Re-render dependent views with updated currency
-                displayProducts(allProducts, 'productsList');
-                displayInventory(allProducts);
+                filterProducts();
+                filterInventory();
 
                 const intelligence = analyzeStore(allProducts, collectionsData.collections || []);
                 
@@ -1254,8 +1345,9 @@
                     }
                 }
                 
-                displayProducts(allProducts);
-                displayInventory(allProducts);
+                populateProductFilters();
+                filterProducts();
+                filterInventory();
             } catch (error) {
                 console.error('Product load failed:', error);
                 document.getElementById('productsList').innerHTML = `<div class="error">❌ Failed to load products. ${error.message}</div>`;
@@ -1265,6 +1357,10 @@
 
         // Display Products as List
         function displayProducts(products, elementId = 'productsList') {
+            if (elementId === 'productsList') {
+                updateProductsCount(Array.isArray(products) ? products.length : 0);
+            }
+
             if (!Array.isArray(products) || products.length === 0) {
                 document.getElementById(elementId).innerHTML = '<div class="no-results">No products found</div>';
                 return;
@@ -1302,6 +1398,98 @@
             });
             html += '</div>';
             document.getElementById(elementId).innerHTML = html;
+            if (elementId === 'productsList') {
+                updateProductsCount(products.length);
+            }
+        }
+
+        function populateProductFilters() {
+            const typeSelect = document.getElementById('productTypeFilter');
+            const vendorSelect = document.getElementById('productVendorFilter');
+            if (!typeSelect || !vendorSelect || !Array.isArray(allProducts)) {
+                return;
+            }
+
+            const types = new Set();
+            const vendors = new Set();
+
+            allProducts.forEach(product => {
+                const type = (product.product_type || '').trim();
+                const vendor = (product.vendor || '').trim();
+                if (type) types.add(type);
+                if (vendor) vendors.add(vendor);
+            });
+
+            const sortedTypes = Array.from(types).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+            const sortedVendors = Array.from(vendors).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+            const previousType = typeSelect.value;
+            const previousVendor = vendorSelect.value;
+
+            typeSelect.innerHTML = ['<option value="">All Types</option>', ...sortedTypes.map(type => `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`)].join('');
+            vendorSelect.innerHTML = ['<option value="">All Vendors</option>', ...sortedVendors.map(vendor => `<option value="${escapeHtml(vendor)}">${escapeHtml(vendor)}</option>`)].join('');
+
+            if (previousType && sortedTypes.includes(previousType)) {
+                typeSelect.value = previousType;
+            }
+            if (previousVendor && sortedVendors.includes(previousVendor)) {
+                vendorSelect.value = previousVendor;
+            }
+        }
+
+        function filterProducts() {
+            if (!Array.isArray(allProducts)) {
+                displayProducts([]);
+                return;
+            }
+
+            const searchInput = document.getElementById('productsSearch');
+            const typeSelect = document.getElementById('productTypeFilter');
+            const vendorSelect = document.getElementById('productVendorFilter');
+
+            const query = searchInput?.value?.toLowerCase() || '';
+            const selectedType = typeSelect?.value || '';
+            const selectedVendor = vendorSelect?.value || '';
+
+            const filtered = allProducts.filter(product => {
+                const title = (product.title || '').toLowerCase();
+                const vendor = (product.vendor || '').toLowerCase();
+                const type = (product.product_type || '').toLowerCase();
+
+                const matchesQuery = !query || title.includes(query) || vendor.includes(query) || type.includes(query);
+                if (!matchesQuery) return false;
+
+                if (selectedType && (product.product_type || '') !== selectedType) {
+                    return false;
+                }
+
+                if (selectedVendor && (product.vendor || '') !== selectedVendor) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            displayProducts(filtered);
+        }
+
+        function resetProductFilters() {
+            const searchInput = document.getElementById('productsSearch');
+            const typeSelect = document.getElementById('productTypeFilter');
+            const vendorSelect = document.getElementById('productVendorFilter');
+
+            if (searchInput) searchInput.value = '';
+            if (typeSelect) typeSelect.value = '';
+            if (vendorSelect) vendorSelect.value = '';
+
+            filterProducts();
+        }
+
+        function updateProductsCount(count) {
+            const el = document.getElementById('productsCount');
+            if (!el) return;
+            const safeCount = Number.isFinite(count) ? count : 0;
+            el.textContent = safeCount === 1 ? '1 result' : `${safeCount} results`;
         }
 
         // Analyze Store Intelligence
@@ -1548,15 +1736,35 @@
 
         // Filter Inventory
         function filterInventory() {
-            const search = document.getElementById('inventorySearch').value.toLowerCase();
-            const filtered = allProducts.filter(p => (p.title || '').toLowerCase().includes(search));
+            const search = document.getElementById('inventorySearch')?.value?.toLowerCase() || '';
+            const stockFilter = document.getElementById('inventoryStockFilter')?.value || '';
+
+            const filtered = allProducts.filter(product => {
+                const title = (product.title || '').toLowerCase();
+                const vendor = (product.vendor || '').toLowerCase();
+                const matchesQuery = !search || title.includes(search) || vendor.includes(search);
+
+                if (!matchesQuery) return false;
+
+                if (!stockFilter) return true;
+
+                const variant = product.variants?.[0];
+                const inStock = typeof variant?.available === 'boolean'
+                    ? variant.available
+                    : (variant?.inventory_quantity || 0) > 0;
+
+                return stockFilter === 'in' ? inStock : !inStock;
+            });
+
             displayInventory(filtered);
+            updateInventoryCount(filtered.length);
         }
 
         // Display Inventory
         function displayInventory(products) {
             if (!Array.isArray(products) || products.length === 0) {
                 document.getElementById('inventoryList').innerHTML = '<div class="no-results">No products found</div>';
+                updateInventoryCount(0);
                 return;
             }
 
@@ -1575,6 +1783,22 @@
             });
             html += '</tbody></table>';
             document.getElementById('inventoryList').innerHTML = html;
+            updateInventoryCount(products.length);
+        }
+
+        function updateInventoryCount(count) {
+            const el = document.getElementById('inventoryCount');
+            if (!el) return;
+            const safeCount = Number.isFinite(count) ? count : 0;
+            el.textContent = safeCount === 1 ? '1 item' : `${safeCount} items`;
+        }
+
+        function resetInventoryFilters() {
+            const searchInput = document.getElementById('inventorySearch');
+            const stockSelect = document.getElementById('inventoryStockFilter');
+            if (searchInput) searchInput.value = '';
+            if (stockSelect) stockSelect.value = '';
+            filterInventory();
         }
 
 
